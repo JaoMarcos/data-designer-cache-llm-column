@@ -2,7 +2,12 @@ import logging
 from data_designer.plugins import Plugin, PluginType
 
 # Make sure to import your generator base class correctly
-from data_designer.engine.column_generators.generators.llm_text import LLMTextCellGenerator 
+from data_designer.engine.column_generators.generators.llm_completion import (
+    LLMCodeCellGenerator,
+    LLMJudgeCellGenerator,
+    LLMStructuredCellGenerator,
+    LLMTextCellGenerator,
+)
 from .cache_control import CacheControl
 
 # Data Designer uses the standard Python logging module for logging

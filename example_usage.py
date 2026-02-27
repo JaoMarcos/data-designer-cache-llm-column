@@ -26,7 +26,7 @@ def main():
     config_builder.add_column(
         CacheLLMTextColumnConfig(
             name="greeting",
-            model_alias="your-model-alias-here", # e.g. "openai-gpt-4o" or a mock model if testing
+            model_alias="nvidia-text", # e.g. "openai-gpt-4o" or a mock model if testing
             prompt="Write a casual and formal greeting in {{ language }}.",
             cache_folder="./llm_cache_storage"
         )
