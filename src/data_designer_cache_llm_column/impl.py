@@ -6,7 +6,7 @@ from data_designer.engine.column_generators.generators.llm_completion import (
 )
 from data_designer.engine.configurable_task import TaskConfigT
 
-from .cache_control import CacheControl
+from .cache_control import CacheControl, DuckDBCacheControl
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,10 @@ class ColumnGeneratorWithCacheModelChatCompletion(
 ):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.cache_control = CacheControl(storage_path=self.config.cache_folder)
+        if self.config.cache_backend == "duckdb":
+            self.cache_control = DuckDBCacheControl(storage_path=self.config.cache_folder)
+        else:
+            self.cache_control = CacheControl(storage_path=self.config.cache_folder)
 
     def generate(self, data: dict) -> dict:
         try:

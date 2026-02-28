@@ -8,6 +8,60 @@ from typing import Any, Dict, Optional
 logger = logging.getLogger(__name__)
 
 
+class DuckDBCacheControl:
+    """DuckDB-backed cache control for LLM responses."""
+
+    _lock = threading.Lock()
+
+    def __init__(self, storage_path: str = "./cache"):
+        """
+        Initialize the DuckDBCacheControl class.
+
+        Args:
+            storage_path: Directory where the DuckDB database file will be stored.
+        """
+        import duckdb
+
+        self.storage_path = storage_path
+        os.makedirs(self.storage_path, exist_ok=True)
+        self.db_path = os.path.join(self.storage_path, "cache.duckdb")
+        self._conn = duckdb.connect(self.db_path)
+        self._conn.execute(
+            "CREATE TABLE IF NOT EXISTS cache (hash VARCHAR PRIMARY KEY, data BLOB)"
+        )
+
+    def get_hash(self, kwargs: Dict[str, Any]) -> str:
+        copy_kwargs = kwargs.copy()
+        del copy_kwargs["parser"]
+        data = str(copy_kwargs).encode("utf-8")
+        return hashlib.sha256(data).hexdigest()
+
+    def get_from_cache(self, kwargs: Dict[str, Any]) -> Optional[Any]:
+        msg_hash = self.get_hash(kwargs)
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT data FROM cache WHERE hash = ?", [msg_hash]
+            ).fetchone()
+        if row is None:
+            return None
+        try:
+            return pickle.loads(bytes(row[0]))
+        except Exception as e:
+            logger.error(f"Error deserializing cache entry for hash {msg_hash}: {e}")
+            return None
+
+    def save_to_cache(self, kwargs: Dict[str, Any], result: Any) -> None:
+        msg_hash = self.get_hash(kwargs)
+        try:
+            blob = pickle.dumps(result)
+            with self._lock:
+                self._conn.execute(
+                    "INSERT OR REPLACE INTO cache VALUES (?, ?)", [msg_hash, blob]
+                )
+        except Exception as e:
+            logger.error(f"Error saving to DuckDB cache for hash {msg_hash}: {e}")
+
+
 class CacheControl:
     """Control class for LLM cache management."""
 
