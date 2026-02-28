@@ -17,12 +17,12 @@ from data_designer.config.column_configs import (
 )
 from data_designer.engine.column_generators.generators.llm_completion import (
     ColumnGeneratorWithModelChatCompletion,
-    LLMTextCellGenerator,
+    LLMStructuredCellGenerator,
 )
 from pydantic import BaseModel
 
 
-class CacheCellGenerator(ColumnGeneratorWithModelChatCompletion[LLMTextColumnConfig]):
+class CacheLLMStructuredCellGenerator(LLMStructuredCellGenerator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cache_control = CacheControl(storage_path=self.config.cache_folder)
@@ -31,7 +31,7 @@ class CacheCellGenerator(ColumnGeneratorWithModelChatCompletion[LLMTextColumnCon
         try:
             original_type = self.config.column_type
             self.config.column_type = (
-                "llm-text"  # Temporarily set to base type for generation
+                "llm-structured"  # Temporarily set to base type for generation
             )
             kwargs = self._prepare_generation_kwargs(data)
 

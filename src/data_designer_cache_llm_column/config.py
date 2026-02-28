@@ -1,17 +1,18 @@
-from typing import Literal
+from typing import TYPE_CHECKING, Generic, Literal, TypeVar, get_origin
 
-from data_designer.config.column_configs import (
-    LLMCodeColumnConfig,
-    LLMJudgeColumnConfig,
-    LLMStructuredColumnConfig,
-    LLMTextColumnConfig,
-)
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 
-class CacheLLMTextColumnConfig(LLMTextColumnConfig):
-    """Configuration for the cache LLM column generator."""
+class CacheConfigBase(BaseModel):
+    """Base configuration for cache-enabled LLM columns."""
 
     # Optional cache folder path to store the results of the function
     cache_folder: str = "cache_folder"
-    column_type: Literal["cache-llm-text"] = "cache-llm-text"
+    save_cache: bool = Field(
+        default=True,
+        description="Whether to save to cache for this column. If False, results will not be saved to cache, but the cache will still be checked and loaded if use_cache is True.",
+    )
+    load_cache: bool = Field(
+        default=True,
+        description="Whether to load from cache for this column. If False, the cache will be bypassed and the model will be called every time, but results will still be saved to cache ifsave_cache is True.",
+    )

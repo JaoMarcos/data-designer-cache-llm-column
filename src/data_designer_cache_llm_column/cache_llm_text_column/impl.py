@@ -22,7 +22,7 @@ from data_designer.engine.column_generators.generators.llm_completion import (
 from pydantic import BaseModel
 
 
-class CacheCellGenerator(ColumnGeneratorWithModelChatCompletion[LLMTextColumnConfig]):
+class CacheLLMTextCellGenerator(LLMTextCellGenerator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cache_control = CacheControl(storage_path=self.config.cache_folder)
