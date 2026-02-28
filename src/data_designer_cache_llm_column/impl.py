@@ -1,25 +1,30 @@
 import logging
 
-from .cache_control import CacheControl
 from data_designer.config.column_configs import LLMTextColumnConfig
 from data_designer.engine.column_generators.generators.llm_completion import (
     ColumnGeneratorWithModelChatCompletion,
 )
+from data_designer.engine.configurable_task import TaskConfigT
+
+from .cache_control import CacheControl
 
 logger = logging.getLogger(__name__)
 
 
-class CacheCellGenerator(ColumnGeneratorWithModelChatCompletion[LLMTextColumnConfig]):
+class ColumnGeneratorWithCacheModelChatCompletion(
+    ColumnGeneratorWithModelChatCompletion[TaskConfigT]
+):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cache_control = CacheControl(storage_path=self.config.cache_folder)
 
     def generate(self, data: dict) -> dict:
         try:
+            self.super_type = super().config.column_type
             original_type = self.config.column_type
-            self.config.column_type = (
-                "llm-text"  # Temporarily set to base type for generation
-            )
+            self.config.column_type = "-".join(
+                self.config.column_type.split("-")[1:]
+            )  # Temporarily set to base type for generation
             kwargs = self._prepare_generation_kwargs(data)
 
             cached_result = None
