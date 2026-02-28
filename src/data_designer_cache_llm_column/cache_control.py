@@ -3,7 +3,7 @@ import logging
 import os
 import pickle
 import threading
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -60,12 +60,11 @@ class CacheControl:
         del copy_kwargs[
             "parser"
         ]  # Remove non-deterministic model reference before hashing
-        # Try to hash string representation
         data = str(copy_kwargs).encode("utf-8")
 
         return hashlib.sha256(data).hexdigest()
 
-    def get_from_cache(self, kwargs: Dict[str, Any]) -> Optional[Tuple[Any, Any]]:
+    def get_from_cache(self, kwargs: Dict[str, Any]) -> Optional[Any]:
         """
         Load a cached response from memory using the kwargs hash.
 
@@ -73,7 +72,7 @@ class CacheControl:
             kwargs: The kwargs used for generation.
 
         Returns:
-            The cached response tuple (response, trace) if found, otherwise None.
+            The cached response if found, otherwise None.
         """
 
         msg_hash = self.get_hash(kwargs)
@@ -96,13 +95,13 @@ class CacheControl:
             )
             return None
 
-    def save_to_cache(self, kwargs: Dict[str, Any], result) -> None:
+    def save_to_cache(self, kwargs: Dict[str, Any], result: Any) -> None:
         """
         Save a response to cache.
 
         Args:
             kwargs: The kwargs used for generation.
-            result: The result to cache (response, trace).
+            result: The result to cache.
         """
         msg_hash = self.get_hash(kwargs)
         file_path = os.path.join(self.storage_path, f"{msg_hash}.pkl")

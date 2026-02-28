@@ -1,7 +1,7 @@
 [project]
 name = "data-designer-cache-llm-column"
 version = "0.1.0"
-description = "Add your description here"
+description = "Data Designer plugin adding cache-enabled LLM text and structured column generators"
 readme = "README.md"
 authors = [
     { name = "jmarcos", email = "jmarcosdo@gmail.com" }
