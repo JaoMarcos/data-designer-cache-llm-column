@@ -26,7 +26,7 @@ class ColumnGeneratorWithCacheModelChatCompletion(
                 self.config.column_type.split("-")[1:]
             )  # Temporarily set to base type for generation
             kwargs = self._prepare_generation_kwargs(data)
-
+            kwargs["_model"] = self.config.model_alias
             cached_result = None
             if self.config.load_cache:
                 cached_result = self.cache_control.get_from_cache(kwargs)

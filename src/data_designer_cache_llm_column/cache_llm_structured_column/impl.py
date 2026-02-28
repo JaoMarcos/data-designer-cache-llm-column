@@ -1,3 +1,5 @@
+import logging
+
 from data_designer.engine.column_generators.generators.llm_completion import (
     LLMStructuredColumnConfig,
     LLMTextCellGenerator,
@@ -8,6 +10,8 @@ from ..impl import ColumnGeneratorWithCacheModelChatCompletion
 from .config import CacheLLMStructuredColumnConfig
 
 logger = logging.getLogger(__name__)
+
+from data_designer.engine.processing.utils import deserialize_json_values
 
 
 class CacheLLMStructuredCellGenerator(

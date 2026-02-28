@@ -13,4 +13,4 @@ artifacts/
 
 .vscode/
 
-llm_cache_storage/
+llm_cache*/
