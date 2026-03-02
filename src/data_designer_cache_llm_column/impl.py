@@ -17,7 +17,9 @@ class ColumnGeneratorWithCacheModelChatCompletion(
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.config.cache_backend == "duckdb":
-            self.cache_control = DuckDBCacheControl(storage_path=self.config.cache_folder)
+            self.cache_control = DuckDBCacheControl(
+                storage_path=self.config.cache_folder
+            )
         else:
             self.cache_control = CacheControl(storage_path=self.config.cache_folder)
 
@@ -31,15 +33,16 @@ class ColumnGeneratorWithCacheModelChatCompletion(
             kwargs = self._prepare_generation_kwargs(data)
             kwargs["_model"] = self.config.model_alias
             cached_result = None
+            trace = None
             if self.config.load_cache:
                 cached_result = self.cache_control.get_from_cache(kwargs)
+
             if cached_result is not None:
-                response = cached_result
-                trace = None  # Cache may not have trace information
+                response, trace = cached_result
             else:
                 response, trace = self.model.generate(**kwargs)
                 if self.config.save_cache:
-                    self.cache_control.save_to_cache(kwargs, response)
+                    self.cache_control.save_to_cache(kwargs, (response, trace))
 
             pgr = self._process_generation_result(data, response, trace)
             self.config.column_type = original_type  # Restore the original column type
