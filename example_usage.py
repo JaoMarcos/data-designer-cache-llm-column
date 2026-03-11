@@ -98,6 +98,7 @@ t5 = time.perf_counter()
 print(f"Time: {t5 - t4:.2f}s")
 print(results3.dataset)
 
+
 config_builder4 = dd.DataDesignerConfigBuilder()
 config_builder4.with_seed_dataset(DataFrameSeedSource(df=seed_df2))
 
@@ -119,6 +120,7 @@ results4 = data_designer.preview(config_builder4, num_records=3)
 t7 = time.perf_counter()
 print(f"Time: {t7 - t6:.2f}s")
 print(results4.dataset)
+results4.display_sample_record(index=0)
 
 print(f"\n--- Structured Speedup: {(t5 - t4) / (t7 - t6):.1f}x faster from cache ---")
 

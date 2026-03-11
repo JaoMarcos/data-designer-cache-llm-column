@@ -42,7 +42,11 @@ class ColumnGeneratorWithCacheModelChatCompletion(
             else:
                 response, trace = self.model.generate(**kwargs)
                 if self.config.save_cache:
-                    self.cache_control.save_to_cache(kwargs, (response, trace))
+                    try:
+                        self.cache_control.save_to_cache(kwargs, (response, trace))
+                    except Exception as e:
+                        logger.error(f"Error saving to cache: {e}")
+                        self.cache_control.save_to_cache(kwargs, (response, {}))
             self.config.column_type = original_type  # Restore the original column type
             pgr = self._process_generation_result(data, response, trace)
         except Exception as e:
